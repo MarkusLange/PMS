@@ -20,6 +20,26 @@ requestRead	KEYWORD2
 read	KEYWORD2
 readUntil	KEYWORD2
 loop	KEYWORD2
+framelen	KEYWORD2
+pm10_standard	KEYWORD2
+pm25_standard	KEYWORD2
+pm100_standard	KEYWORD2
+pm10_env	KEYWORD2
+pm25_env	KEYWORD2
+pm100_env	KEYWORD2
+particles_03um	KEYWORD2
+particles_05um	KEYWORD2
+particles_10um	KEYWORD2
+particles_25um	KEYWORD2
+particles_50um	KEYWORD2
+particles_100um	KEYWORD2
+firmware_version	KEYWORD2
+error_code	KEYWORD2
+temperature	KEYWORD2
+humidity	KEYWORD2
+formaldehyde	KEYWORD2
+unused	KEYWORD2
+checksum	KEYWORD2
 
 #######################################
 # Instances (KEYWORD2)

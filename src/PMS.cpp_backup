@@ -54,7 +54,7 @@ bool PMS::readUntil(PMS_CONCENTRATION *_data, uint16_t timeout) {
     loop(_data);
     if (_status == STATUS_OK) break;
   } while (millis() - start < timeout);
-  
+
   return _status == STATUS_OK;
 }
 
@@ -62,35 +62,38 @@ void PMS::loop(PMS_CONCENTRATION *_data) {
   _status = STATUS_WAITING;
   if (_stream->available()) {
     //uint8_t data = _stream->read();
-    
+
     switch (_index) {
     case 0:
+	  Serial.println("case 0:");
       if (_stream->peek() != 0x42) {
-		_stream->read();
         return;
       }
       _header[0] = _stream->read();
 	  _index = 1;
       break;
-    
+
     case 1:
+	  Serial.println("case 1:");
       if (_stream->peek() != 0x4D) {
-		_stream->read();
         _index = 0;
         return;
       }
       _header[1] = _stream->read();
 	  _index = 2;
       break;
-    
+
     case 2:
+	  Serial.println("case 2:");
       _header[2] = _stream->read();
       _index = 3;
       break;
-	
+	  
 	case 3:
+	  Serial.print("case 3:");
 	  _header[3] = _stream->read();
       _frameLen = makeWord(_header[2], _header[3]);
+	  Serial.println(_frameLen);
 	  // Unsupported sensor, different frame length, transmission error e.t.c.
       if (_frameLen != 2 * 9 + 2 && _frameLen != 2 * 13 + 2 && _frameLen != 2 * 17 + 2) {
         _index = 0;
@@ -100,69 +103,47 @@ void PMS::loop(PMS_CONCENTRATION *_data) {
 	  break;
 	
 	case 4:
-	  _stream->readBytes(_frame, _frameLen);
-	  
+	  Serial.println("case 4:");
+	  _stream->readBytes(_buffer, _frameLen);
+	
       // get checksum ready
+	  Serial.println("------");
 	  _calculatedChecksum = 0;
-      for (uint8_t i = 0; i < 4; i++)
+      for (uint8_t i = 0; i < 4; i++) {
         _calculatedChecksum += _header[i];
-      for (uint8_t i = 0; i < _frameLen - 2; i++)
-        _calculatedChecksum += _frame[i];
+		Serial.println(_header[i],HEX);
+      }
 	  
-	  _checksum = makeWord(_frame[_frameLen - 2], _frame[_frameLen - 1]);
-	  
-      if (_calculatedChecksum == _checksum) { // PMS3003 only common to all
-	    _data->framelen           = _frameLen;
+      for (uint8_t i = 0; i < _frameLen - 2; i++) {
+        _calculatedChecksum += _buffer[i];
+		Serial.print(i);
+		Serial.print(":");
+		Serial.println(_buffer[i],HEX);
+      }
+	  Serial.println("------");
+	  Serial.println(_calculatedChecksum,HEX);
+	
+	  _checksum = makeWord(_buffer[_frameLen - 2], _buffer[_frameLen - 1]);
+	  Serial.println(_checksum,HEX);
+	
+      if (_calculatedChecksum == _checksum) {
+        _status = STATUS_OK;
+
         // Standard Particles, CF=1.
-        _data->pm10_standard      = makeWord(_frame[ 0], _frame[ 1]);
-        _data->pm25_standard      = makeWord(_frame[ 2], _frame[ 3]);
-        _data->pm100_standard     = makeWord(_frame[ 4], _frame[ 5]);
-        
+        _data->PM_SP_UG_1_0  = makeWord(_buffer[0], _buffer[1]);
+        _data->PM_SP_UG_2_5  = makeWord(_buffer[2], _buffer[3]);
+        _data->PM_SP_UG_10_0 = makeWord(_buffer[4], _buffer[5]);
+
         // Atmospheric Environment.
-        _data->pm10_env           = makeWord(_frame[ 6], _frame[ 7]);
-        _data->pm25_env           = makeWord(_frame[ 8], _frame[ 9]);
-        _data->pm100_env          = makeWord(_frame[10], _frame[11]);
-		
-		if (_frameLen == 2 * 13 + 2 || _frameLen == 2 * 17 + 2) { // PMS1003 PMS5003S PMS5003T PMS6003 PMS7003 PMSA003
-		  // Particle Count
-		  _data->particles_03um   = makeWord(_frame[12], _frame[13]);
-		  _data->particles_05um   = makeWord(_frame[14], _frame[15]);
-		  _data->particles_10um   = makeWord(_frame[16], _frame[17]);
-		  _data->particles_25um   = makeWord(_frame[18], _frame[19]);
-		  _data->particles_50um   = makeWord(_frame[20], _frame[21]);
-		  _data->particles_100um  = makeWord(_frame[22], _frame[23]);
-		  
-		  // PMS5003T
-		  _data->temperature      = makeWord(_frame[20], _frame[21]) / 10;
-		  _data->humidity         = makeWord(_frame[22], _frame[23]) / 10;
-		}
-		
-		if (_frameLen == 2 * 13 + 2) {
-	      // PMS7003 PMSA003
-		  _data->firmware_version = _frame[24];
-		  _data->error_code       = _frame[25];
-		  
-		  // PMS5003S
-		  _data->formaldehyde     = makeWord(_frame[24], _frame[25]) / 1000;
-		}
-		
-		if (_frameLen == 2 * 17 + 2) { //PMS5003ST
-		  // Environment
-		  _data->formaldehyde     = makeWord(_frame[24], _frame[25]) / 1000;
-		  _data->temperature      = makeWord(_frame[26], _frame[27]) / 10;
-		  _data->humidity         = makeWord(_frame[28], _frame[29]) / 10;
-		  
-		  _data->firmware_version = _frame[32];
-		  _data->error_code       = _frame[33];
-		}
-		
+        _data->PM_AE_UG_1_0  = makeWord(_buffer[6], _buffer[7]);
+        _data->PM_AE_UG_2_5  = makeWord(_buffer[8], _buffer[9]);
+        _data->PM_AE_UG_10_0 = makeWord(_buffer[10], _buffer[11]);
 		_index = 0;
-		_status = STATUS_OK;
 		return;
       }
 	  else {
 	    _index = 0;
-		//return;
+		return;
 	  }
 	  break;
 	}

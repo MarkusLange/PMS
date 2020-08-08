@@ -1,29 +1,53 @@
 #include "PMS.h"
 
-PMS pms(Serial);
-PMS::DATA data;
+PMS pms(&Serial1);
+PMS_CONCENTRATION data;
 
-void setup()
-{
-  Serial.begin(9600);   // GPIO1, GPIO3 (TX/RX pin on ESP-12E Development Board)
-  Serial1.begin(9600);  // GPIO2 (D4 pin on ESP-12E Development Board)
+void setup() {
+  Serial.begin(9600);
 }
 
-void loop()
-{
-  if (pms.read(data))
-  {
-    Serial1.print("PM 1.0 (ug/m3): ");
-    Serial1.println(data.PM_AE_UG_1_0);
+void loop() {
+  if (pms.read(&data)) {
+    Serial.print("PM  1.0 (ug/m3): ");
+    Serial.println(data.pm10_standard);
 
-    Serial1.print("PM 2.5 (ug/m3): ");
-    Serial1.println(data.PM_AE_UG_2_5);
+    Serial.print("PM  2.5 (ug/m3): ");
+    Serial.println(data.pm25_standard);
 
-    Serial1.print("PM 10.0 (ug/m3): ");
-    Serial1.println(data.PM_AE_UG_10_0);
+    Serial.print("PM 10.0 (ug/m3): ");
+    Serial.println(data.pm100_standard);
+	
+    Serial.print("PM  1.0 (ug/m3)AE: ");
+    Serial.println(data.pm10_env);
 
-    Serial1.println();
+    Serial.print("PM  2.5 (ug/m3)AE: ");
+    Serial.println(data.pm25_env);
+
+    Serial.print("PM 10.0 (ug/m3)AE: ");
+    Serial.println(data.pm100_env);
+	
+    Serial.print(" 0.3um Particle Count: ");
+    Serial.println(data.particles_03um);
+	
+    Serial.print(" 0.5um Particle Count: ");
+    Serial.println(data.particles_05um);
+	
+    Serial.print(" 1.0um Particle Count: ");
+    Serial.println(data.particles_10um);
+	
+    Serial.print(" 2.5um Particle Count: ");
+    Serial.println(data.particles_25um);
+	
+    Serial.print(" 5.0um Particle Count: ");
+    Serial.println(data.particles_50um);
+	
+    Serial.print("10.0um Particle Count: ");
+    Serial.println(data.particles_100um);
+	
+    Serial.println(data.firmware_version);
+    Serial.println(data.error_code);
+    Serial.println();
   }
-
   // Do other stuff...
 }
