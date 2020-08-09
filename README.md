@@ -1,6 +1,6 @@
 # PMS Library
 Arduino library for Plantower PMS sensors.
-Supports PMS x003 sensors (1003, 3003, 5003, 6003, 7003).
+Supports PMS x003 sensors (1003, 3003, 5003(S/T/ST), 6003, 7003, A003).
 ## Installation
 Just use Arduino Library Manager and search "PMS Library" in Sensors category.
 ## Main assumptions
@@ -17,31 +17,55 @@ Read in active mode.
 ```cpp
 #include "PMS.h"
 
-PMS pms(Serial);
-PMS::DATA data;
+PMS pms(&Serial1);
+PMS_CONCENTRATION data;
 
-void setup()
-{
-  Serial.begin(9600);   // GPIO1, GPIO3 (TX/RX pin on ESP-12E Development Board)
-  Serial1.begin(9600);  // GPIO2 (D4 pin on ESP-12E Development Board)
+void setup() {
+  Serial.begin(9600);
 }
 
-void loop()
-{
-  if (pms.read(data))
-  {
-    Serial1.print("PM 1.0 (ug/m3): ");
-    Serial1.println(data.PM_AE_UG_1_0);
+void loop() {
+  if (pms.read(&data)) {
+    Serial.print("PM  1.0 (ug/m3): ");
+    Serial.println(data.pm10_standard);
 
-    Serial1.print("PM 2.5 (ug/m3): ");
-    Serial1.println(data.PM_AE_UG_2_5);
+    Serial.print("PM  2.5 (ug/m3): ");
+    Serial.println(data.pm25_standard);
 
-    Serial1.print("PM 10.0 (ug/m3): ");
-    Serial1.println(data.PM_AE_UG_10_0);
+    Serial.print("PM 10.0 (ug/m3): ");
+    Serial.println(data.pm100_standard);
+	
+    Serial.print("PM  1.0 (ug/m3)AE: ");
+    Serial.println(data.pm10_env);
 
-    Serial1.println();
+    Serial.print("PM  2.5 (ug/m3)AE: ");
+    Serial.println(data.pm25_env);
+
+    Serial.print("PM 10.0 (ug/m3)AE: ");
+    Serial.println(data.pm100_env);
+	
+    Serial.print(" 0.3um Particle Count: ");
+    Serial.println(data.particles_03um);
+	
+    Serial.print(" 0.5um Particle Count: ");
+    Serial.println(data.particles_05um);
+	
+    Serial.print(" 1.0um Particle Count: ");
+    Serial.println(data.particles_10um);
+	
+    Serial.print(" 2.5um Particle Count: ");
+    Serial.println(data.particles_25um);
+	
+    Serial.print(" 5.0um Particle Count: ");
+    Serial.println(data.particles_50um);
+	
+    Serial.print("10.0um Particle Count: ");
+    Serial.println(data.particles_100um);
+	
+    Serial.println(data.firmware_version);
+    Serial.println(data.error_code);
+    Serial.println();
   }
-
   // Do other stuff...
 }
 ```
@@ -62,43 +86,37 @@ Read in passive mode but not the best way (see additional remarks).
 ```cpp
 #include "PMS.h"
 
-PMS pms(Serial);
-PMS::DATA data;
+PMS pms(&Serial1);
+PMS_CONCENTRATION data;
 
-void setup()
-{
-  Serial.begin(9600);   // GPIO1, GPIO3 (TX/RX pin on ESP-12E Development Board)
-  Serial1.begin(9600);  // GPIO2 (D4 pin on ESP-12E Development Board)
+void setup() {
+  Serial.begin(9600);
   pms.passiveMode();    // Switch to passive mode
 }
 
-void loop()
-{
-  Serial1.println("Waking up, wait 30 seconds for stable readings...");
+void loop() {
+  Serial.println("Waking up, wait 30 seconds for stable readings...");
   pms.wakeUp();
   delay(30000);
 
-  Serial1.println("Send read request...");
+  Serial.println("Send read request...");
   pms.requestRead();
 
-  Serial1.println("Reading data...");
-  if (pms.readUntil(data))
-  {
-    Serial1.print("PM 1.0 (ug/m3): ");
-    Serial1.println(data.PM_AE_UG_1_0);
+  Serial.println("Wait max. 1 second for read...");
+  if (pms.readUntil(&data)) {
+    Serial.print("PM  1.0 (ug/m3): ");
+    Serial.println(data.pm10_standard);
 
-    Serial1.print("PM 2.5 (ug/m3): ");
-    Serial1.println(data.PM_AE_UG_2_5);
+    Serial.print("PM  2.5 (ug/m3): ");
+    Serial.println(data.pm25_standard);
 
-    Serial1.print("PM 10.0 (ug/m3): ");
-    Serial1.println(data.PM_AE_UG_10_0);
-  }
-  else
-  {
-    Serial1.println("No data.");
+    Serial.print("PM 10.0 (ug/m3): ");
+    Serial.println(data.pm100_standard);
+  } else {
+    Serial.println("No data.");
   }
 
-  Serial1.println("Going to sleep for 60 seconds.");
+  Serial.println("Going to sleep for 60 seconds.");
   pms.sleep();
   delay(60000);
 }
