@@ -71,12 +71,12 @@ void loop() {
 ```
 ## Output
 ```
-PM 1.0 (ug/m3): 13
-PM 2.5 (ug/m3): 18
+PM  1.0 (ug/m3): 13
+PM  2.5 (ug/m3): 18
 PM 10.0 (ug/m3): 23
 
-PM 1.0 (ug/m3): 12
-PM 2.5 (ug/m3): 19
+PM  1.0 (ug/m3): 12
+PM  2.5 (ug/m3): 19
 PM 10.0 (ug/m3): 24
 
 ...
@@ -126,15 +126,15 @@ void loop() {
 Waking up, wait 30 seconds for stable readings...
 Send read request...
 Reading data...
-PM 1.0 (ug/m3): 13
-PM 2.5 (ug/m3): 18
+PM  1.0 (ug/m3): 13
+PM  2.5 (ug/m3): 18
 PM 10.0 (ug/m3): 23
 Going to sleep for 60 seconds.
 Waking up, wait 30 seconds for stable readings...
 Send read request...
 Reading data...
-PM 1.0 (ug/m3): 12
-PM 2.5 (ug/m3): 19
+PM  1.0 (ug/m3): 12
+PM  2.5 (ug/m3): 19
 PM 10.0 (ug/m3): 24
 Going to sleep for 60 seconds.
 
