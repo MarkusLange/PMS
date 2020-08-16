@@ -112,7 +112,7 @@ void PMS::loop(PMS_CONCENTRATION *_data) {
 	  _checksum = makeWord(_frame[_frameLen - 2], _frame[_frameLen - 1]);
 	  
       if (_calculatedChecksum == _checksum) { // PMS3003 only common to all
-	    _data->framelen           = _frameLen;
+	_data->framelength        = _frameLen;
         // Standard Particles, CF=1.
         _data->pm10_standard      = makeWord(_frame[ 0], _frame[ 1]);
         _data->pm25_standard      = makeWord(_frame[ 2], _frame[ 3]);
@@ -129,6 +129,7 @@ void PMS::loop(PMS_CONCENTRATION *_data) {
 		  _data->particles_05um   = makeWord(_frame[14], _frame[15]);
 		  _data->particles_10um   = makeWord(_frame[16], _frame[17]);
 		  _data->particles_25um   = makeWord(_frame[18], _frame[19]);
+		  // PMS1003 PMS5003S PMS6003 PMS7003 PMSA003
 		  _data->particles_50um   = makeWord(_frame[20], _frame[21]);
 		  _data->particles_100um  = makeWord(_frame[22], _frame[23]);
 		  
@@ -138,7 +139,7 @@ void PMS::loop(PMS_CONCENTRATION *_data) {
 		}
 		
 		if (_frameLen == 2 * 13 + 2) {
-	      // PMS7003 PMSA003
+	          // PMS7003 PMSA003
 		  _data->firmware_version = _frame[24];
 		  _data->error_code       = _frame[25];
 		  
