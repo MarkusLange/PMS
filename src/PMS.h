@@ -4,7 +4,7 @@
 #include "Stream.h"
 
 typedef struct {
-  uint16_t framelen;        ///< How long this data chunk is
+  uint16_t framelength;     ///< How long this data chunk is
   uint16_t pm10_standard,   ///< Standard PM1.0
       pm25_standard,        ///< Standard PM2.5
       pm100_standard;       ///< Standard PM10.0
